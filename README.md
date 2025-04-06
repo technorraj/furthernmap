@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="nmap.jpg" alt="Banner" width="700"/>
+  <img src="nmap.JPG" alt="Banner" width="700"/>
 </p>
 
 # TryHackMe: Further Nmap - Walkthrough
