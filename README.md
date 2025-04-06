@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="nmap.jpg" alt="Banner" width="700"/>
+</p>
+
 # TryHackMe: Further Nmap - Walkthrough
 
 This is a complete walkthrough for the TryHackMe room [Further Nmap](https://tryhackme.com/room/furthernmap). It covers all 15 tasks, focusing on advanced scanning techniques, Nmap switches, script usage, and firewall evasion methods.
