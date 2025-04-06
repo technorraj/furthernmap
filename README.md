@@ -182,4 +182,4 @@ This concludes the walkthrough of the "Further Nmap" room. The room explores adv
 ---
 
 **Room Link:** [https://tryhackme.com/room/furthernmap](https://tryhackme.com/room/furthernmap)  
-**Author:** [technor_raj]
+**Author:** [technor_raj](https://technorraj.github.io/)
