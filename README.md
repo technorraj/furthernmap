@@ -1,137 +1,185 @@
-# TryHackMe: Further Nmap Walkthrough
+# TryHackMe: Further Nmap - Walkthrough
 
-This walkthrough provides a comprehensive guide to completing the [Further Nmap](https://tryhackme.com/room/furthernmap) room on TryHackMe. The room explores advanced features of Nmap, a powerful network scanning tool, and covers various scanning techniques, switches, and practical applications.
-
----
-
-## Table of Contents
-
-- [Task 1: Deploy](#task-1-deploy)
-- [Task 2: Introduction](#task-2-introduction)
-- [Task 3: Nmap Switches](#task-3-nmap-switches)
-- [Task 4: Scan Types](#task-4-scan-types)
-  - [TCP Connect Scans](#tcp-connect-scans)
-  - [SYN Scans](#syn-scans)
-  - [UDP Scans](#udp-scans)
-  - [NULL, FIN, and Xmas Scans](#null-fin-and-xmas-scans)
-  - [ICMP Network Scanning](#icmp-network-scanning)
-- [Task 5: Nmap Scripting Engine (NSE)](#task-5-nmap-scripting-engine-nse)
-  - [Working with the NSE](#working-with-the-nse)
-  - [Searching for Scripts](#searching-for-scripts)
-- [Task 6: Firewall Evasion Techniques](#task-6-firewall-evasion-techniques)
-- [Task 7: Practical](#task-7-practical)
-- [Task 8: Conclusion](#task-8-conclusion)
-
----
-
-## Task 1: Deploy
-
-**Objective:** Deploy the attached VM.
-
-**Action:** Start the virtual machine provided with the room. This VM will serve as the target for your Nmap scans throughout the tasks.
+This is a complete walkthrough for the TryHackMe room [Further Nmap](https://tryhackme.com/room/furthernmap). It covers all 15 tasks, focusing on advanced scanning techniques, Nmap switches, script usage, and firewall evasion methods.
 
 ---
 
 ## Task 2: Introduction
 
-**Q1:** What networking constructs are used to direct traffic to the right application on a server?  
-**A1:** Ports
+**Q:** What networking constructs are used to direct traffic to the right application on a server?  
+**A:** Ports
 
-**Q2:** How many of these are available on any network-enabled computer?  
-**A2:** 65535
+**Q:** How many of these are available on any network-enabled computer?  
+**A:** 65535
 
-**Q3:** [Research] How many of these are considered "well-known"?  
-**A3:** 1024
-
-**Explanation:** Ports are numerical identifiers in networking used to distinguish different services or applications running on a single device. There are 65,535 ports available, numbered from 0 to 65,535. The first 1,024 ports (0-1023) are designated as "well-known" ports and are typically assigned to widely used protocols and services.
+**Q:** How many of these are considered "well-known"?  
+**A:** 1024
 
 ---
 
 ## Task 3: Nmap Switches
 
-Nmap offers a variety of command-line switches to customize scans. Below are some commonly used switches:
+**Q:** What is the first switch listed in the help menu for a SYN scan?  
+**A:** -sS
 
-- **`-sS`**: Performs a TCP SYN scan (also known as a half-open scan).
-- **`-sU`**: Performs a UDP scan.
-- **`-O`**: Enables OS detection.
-- **`-sV`**: Enables version detection.
-- **`-v`**: Increases verbosity level. Use `-vv` for even more verbosity.
-- **`-oA <basename>`**: Outputs results in all formats (normal, XML, and grepable).
-- **`-oN <filename>`**: Outputs results in normal format.
-- **`-oG <filename>`**: Outputs results in grepable format.
-- **`-A`**: Enables aggressive scan options, including OS detection, version detection, script scanning, and traceroute.
-- **`-T<0-5>`**: Sets the timing template (higher is faster but more detectable).
-- **`-p <port(s)>`**: Specifies ports to scan. Use `-p-` to scan all 65,535 ports.
-- **`--script <script>`**: Executes a specific NSE script.
-- **`--script=<category>`**: Executes all scripts in a specified category.
+**Q:** Which switch would you use for a UDP scan?  
+**A:** -sU
 
----
+**Q:** Which switch detects the operating system?  
+**A:** -O
 
-## Task 4: Scan Types
+**Q:** Which switch detects the version of services?  
+**A:** -sV
 
-Nmap supports various scan types, each with its own use cases:
+**Q:** How to increase verbosity?  
+**A:** -v
 
-### TCP Connect Scans
+**Q:** How to set verbosity level to two?  
+**A:** -vv
 
-**Q1:** Which RFC defines the appropriate behavior for the TCP protocol?  
-**A1:** RFC 793
+**Q:** Save results in all formats?  
+**A:** -oA
 
-**Q2:** If a port is closed, which flag should the server send back to indicate this?  
-**A2:** RST (Reset)
+**Q:** Save results in normal format?  
+**A:** -oN
 
-**Explanation:** A TCP Connect Scan completes the three-way handshake with each target port. If the port is closed, the server responds with a TCP packet with the RST flag set.
+**Q:** Save results in grepable format?  
+**A:** -oG
 
-### SYN Scans
+**Q:** Enable aggressive mode?  
+**A:** -A
 
-**Q1:** There are two other names for a SYN scan, what are they?  
-**A1:** Half-open, Stealth
+**Q:** Set timing template to level 5?  
+**A:** -T5
 
-**Q2:** Can Nmap use a SYN scan without Sudo permissions (Y/N)?  
-**A2:** N
+**Q:** Scan only port 80?  
+**A:** -p 80
 
-**Explanation:** SYN scans, also known as half-open or stealth scans, send SYN packets and wait for responses without completing the handshake. They require sudo permissions to execute.
+**Q:** Scan ports 1000–1500?  
+**A:** -p 1000-1500
 
-### UDP Scans
+**Q:** Scan all ports?  
+**A:** -p-
 
-**Q1:** If a UDP port doesn’t respond to an Nmap scan, what will it be marked as?  
-**A1:** open|filtered
+**Q:** Activate a script from the library?  
+**A:** --script
 
-**Q2:** When a UDP port is closed, by convention the target should send back a "port unreachable" message. Which protocol would it use to do so?  
-**A2:** ICMP
-
-**Explanation:** UDP scans send UDP packets to target ports. If there is no response, the port is marked as open|filtered. If the port is closed, the target responds with an ICMP Port Unreachable message.
-
-### NULL, FIN, and Xmas Scans
-
-**Q1:** Which of the three shown scan types uses the URG flag?  
-**A1:** Xmas
-
-**Q2:** Why are NULL, FIN, and Xmas scans generally used?  
-**A2:** Firewall evasion
-
-**Q3:** Which common OS may respond to a NULL, FIN, or Xmas scan with a RST for every port?  
-**A3:** Microsoft Windows
-
-**Explanation:** These scans manipulate TCP flags to evade basic firewall rules. The Xmas scan sets the PSH, URG, and FIN flags. Microsoft Windows systems typically respond with a RST for every port when subjected to these scans.
-
-### ICMP Network Scanning
-
-**Q1:** How would you perform a ping sweep on the 172.16.x.x network (Netmask: 255.255.0.0) using Nmap? (CIDR notation)  
-**A1:** `nmap -sn 172.16.0.0/16`
-
-**Explanation:** ICMP scans are used to discover live hosts on a network. The `-sn` switch tells Nmap to perform a ping sweep without port scanning.
+**Q:** Activate all scripts in the "vuln" category?  
+**A:** --script=vuln
 
 ---
 
-## Task 5: Nmap Scripting Engine (NSE)
+## Task 5: TCP Connect Scans
 
-The Nmap Scripting Engine allows users to write and share scripts to automate networking tasks.
+**Q:** Which RFC defines appropriate TCP behavior?  
+**A:** RFC 793
 
-**Q1:** What language is used to write NSE scripts?  
-**A1:** Lua
+**Q:** If a port is closed, which flag is returned?  
+**A:** RST
 
-**Q2:** What category of scripts is considered intrusive?  
-**A2:** intrusive
+---
 
-**Q3:** What option can you use to set script arguments?  
-**A3:** `0
+## Task 6: SYN Scans
+
+**Q:** What are two other names for a SYN scan?  
+**A:** Half-open, Stealth
+
+**Q:** Can Nmap perform SYN scans without sudo?  
+**A:** No
+
+---
+
+## Task 7: UDP Scans
+
+**Q:** If a UDP port doesn’t respond, what is it marked as?  
+**A:** open|filtered
+
+**Q:** Which protocol is used to send a “port unreachable” message?  
+**A:** ICMP
+
+---
+
+## Task 8: NULL, FIN, and Xmas Scans
+
+**Q:** Which scan type uses the URG flag?  
+**A:** Xmas
+
+**Q:** Why are these scans used?  
+**A:** Firewall evasion
+
+**Q:** Which OS may respond with RST for every port?  
+**A:** Microsoft Windows
+
+---
+
+## Task 9: ICMP Network Scanning
+
+**Q:** How would you perform a ping sweep on the 172.16.x.x network (Netmask: 255.255.0.0)?  
+**A:** `nmap -sn 172.16.0.0/16`
+
+---
+
+## Task 10: NSE Scripts Overview
+
+**Q:** What language are NSE scripts written in?  
+**A:** Lua
+
+**Q:** Which script category is unsafe for production environments?  
+**A:** intrusive
+
+---
+
+## Task 11: Working with the NSE
+
+**Q:** What optional argument can the `ftp-anon.nse` script take?  
+**A:** maxlist
+
+---
+
+## Task 12: Searching for Scripts
+
+**Q:** Script that determines the OS of the SMB server?  
+**A:** smb-os-discovery.nse
+
+**Q:** What does this script depend on?  
+**A:** smb-brute
+
+---
+
+## Task 13: Firewall Evasion
+
+**Q:** Which protocol is often blocked, requiring use of `-Pn`?  
+**A:** ICMP
+
+**Q:** Which switch appends random data to packets?  
+**A:** --data-length
+
+---
+
+## Task 14: Practical
+
+**Q:** Does the target respond to ICMP requests?  
+**A:** No
+
+**Q:** Xmas scan on first 999 ports — how many are open or filtered?  
+**A:** 999
+
+**Q:** Reason for this result?  
+**A:** No Response
+
+**Q:** SYN scan on first 5000 ports — how many are open?  
+**A:** 5
+
+**Q:** Can Nmap log in anonymously to the FTP server (port 21)?  
+**A:** Yes
+
+---
+
+## Task 15: Conclusion
+
+This concludes the walkthrough of the "Further Nmap" room. The room explores advanced Nmap techniques including scanning types, timing templates, firewall evasion, NSE script usage, and more. This foundational knowledge is essential for penetration testers and security analysts to efficiently enumerate and assess systems.
+
+---
+
+**Room Link:** [https://tryhackme.com/room/furthernmap](https://tryhackme.com/room/furthernmap)  
+**Author:** [technor_raj]
